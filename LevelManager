@@ -10,6 +10,10 @@ public class LevelManager : MonoBehaviour
 
     public CinemachineVirtualCameraBase cam;
 
+    [Header("Currency")]
+    public int currency = 0;
+    public Text currencyUI;
+    
     private void Awake()
     {
         instance = this;
