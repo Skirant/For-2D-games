@@ -1,0 +1,136 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+public class EnemyAi : MonoBehaviour
+{
+    public float speed = 3f;
+    private Transform target;
+    public Rigidbody2D rb;
+
+    public Transform Enemy;
+
+    public Vector3 StartPos;
+    public Vector3 EndPos;
+    public Vector3 Direct;
+    public Vector3 MoveDirect;
+
+    [SerializeField] private float attackDamage = 10f;
+    [SerializeField] private float attackSpeed = 1f;
+    private float canAttack;
+
+    private float health;
+    [SerializeField] private float maxHealth;
+
+    private void Start()
+    {
+        health = maxHealth;
+        StartPos = transform.position;
+        EndPos = transform.position;
+    }
+
+    public void TakeDamage(float dmg)
+    {
+        health -= dmg;
+        Debug.Log("Enemy Health" + health);
+
+        if (health <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if(target != null)
+        {
+            float step = speed * Time.deltaTime;
+            transform.position = Vector2.MoveTowards(transform.position, target.position, step);
+        }
+
+        OnReternPlayer();
+        WhatPositionRun();
+    }
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if(other.gameObject.tag == "Player")
+        {
+            if(attackSpeed<= canAttack)
+            {
+                other.gameObject.GetComponent<PlayerHealth>().UpdateHealth(-attackDamage);
+                canAttack = 0f;
+            }
+            else
+            {
+                canAttack += Time.deltaTime;
+            }
+            
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            if (attackSpeed <= canAttack)
+            {
+                other.gameObject.GetComponent<PlayerHealth>().UpdateHealth(-attackDamage);
+                canAttack = 0f;
+            }
+            else
+            {
+                canAttack += Time.deltaTime;
+            }
+
+        }
+    }
+
+    private void WhatPositionRun()
+    {
+        StartPos = transform.position;
+        if (StartPos != EndPos)
+        {
+            //Debug.Log(Direct); // ������� ������ ��� �������� �������.
+            Direct = StartPos - EndPos;
+            MoveDirect = transform.TransformDirection(Direct) * 10000; // 10000 - ������ ����.
+            EndPos = StartPos;
+
+        }
+        Debug.DrawRay(transform.position, MoveDirect, Color.green);
+    }
+
+    private void OnReternPlayer()
+    {
+        Enemy.eulerAngles = new Vector3(0, 0, 0);
+
+        Vector3 aimLocalScale = Vector3.one;
+
+        if (Direct.x > 0.01)
+        {
+            aimLocalScale.x = +1f;
+        }
+        else if ((Direct.x < 0.01))
+        {
+            aimLocalScale.x = -1f;
+        }
+
+        Enemy.localScale = aimLocalScale;
+    }
+private void OnTriggerEnter2D(Collider2D other)
+    {
+        if(other.gameObject.tag == "Player")
+        {
+            target = other.transform;
+        }
+    }
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            target = null;
+        }
+    }
+}
+
+
