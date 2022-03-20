@@ -6,7 +6,46 @@ public class Bullet : MonoBehaviour
     public float bulletDamage = 10f;
     public Rigidbody2D rb;
 
-    private void FixedUpdate()
+    private void FixedUpdate()// NULLcode Studio © 2015
+// null-code.ru
+
+using UnityEngine;
+using System.Collections;
+
+[RequireComponent(typeof(Rigidbody2D))]
+
+public class Bullet2D : MonoBehaviour {
+
+	public float BulletDamage;
+
+
+	void Start()
+	{
+		// уничтожить объект по истечению указанного времени (секунд), если пуля никуда не попала
+		Destroy(gameObject, 4);
+	}
+	
+	void OnTriggerEnter2D(Collider2D coll)
+	{
+		if(!coll.isTrigger) // чтобы пуля не реагировала на триггер
+		{
+			switch(coll.tag)
+			{
+			case "Enemy":
+					Debug.Log("Enemy Attacked");
+					EnemyAi enemy = coll.gameObject.GetComponent<EnemyAi>();
+					enemy.TakeDamage(BulletDamage);
+				break;
+			case "Enemy_2":
+				// что-то еще...
+				break;
+			}
+			
+			Destroy(gameObject);
+		}
+	}
+}
+
     {
         rb.velocity = transform.right * bulletSpeed;
     }
